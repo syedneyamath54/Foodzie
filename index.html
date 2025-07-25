@@ -1,1 +1,285 @@
-My App
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Mobile Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .simulator-container {
+            background: #000;
+            border-radius: 40px;
+            padding: 20px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 40px;
+            position: relative;
+            overflow: hidden;
+            border: 8px solid #1a1a1a;
+        }
+
+        .notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 1000;
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            border-radius: 32px;
+            overflow: hidden;
+            background: #fff;
+            position: relative;
+        }
+
+        .expo-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #fff;
+        }
+
+        .controls {
+            position: absolute;
+            top: -60px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .control-btn.active {
+            background: rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .info-panel {
+            position: absolute;
+            bottom: -100px;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: #fff;
+            border-radius: 3px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 480px) {
+            .phone-frame {
+                width: 320px;
+                height: 640px;
+            }
+            
+            .simulator-container {
+                padding: 15px;
+            }
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #666;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .loading::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="simulator-container">
+        <div class="status-indicator">LIVE</div>
+        
+        <div class="controls">
+            <button class="control-btn active" onclick="setDevice('iphone')" id="iphone-btn">iPhone</button>
+            <button class="control-btn" onclick="setDevice('android')" id="android-btn">Android</button>
+            <button class="control-btn" onclick="reloadApp()">Reload</button>
+        </div>
+
+        <div class="phone-frame" id="phone-frame">
+            <div class="notch" id="notch"></div>
+            <div class="screen">
+                <div class="loading" id="loading">
+                    Loading TaskFlow Mobile App...
+                </div>
+                <iframe 
+                    id="expo-frame"
+                    class="expo-frame" 
+                    src="http://localhost:8081/node_modules/expo/AppEntry.bundle?platform=ios&dev=true&hot=false"
+                    style="display: none;"
+                    onload="hideLoading()"
+                ></iframe>
+            </div>
+            <div class="home-indicator"></div>
+        </div>
+
+        <div class="info-panel">
+            <h3>📱 TaskFlow Mobile App</h3>
+            <p>Beautiful task management app built with React Native & Expo</p>
+            <p><strong>Features:</strong> Task CRUD, Priority levels, Statistics dashboard, Modern UI</p>
+        </div>
+    </div>
+
+    <script>
+        let currentDevice = 'iphone';
+        
+        function setDevice(device) {
+            currentDevice = device;
+            const frame = document.getElementById('phone-frame');
+            const notch = document.getElementById('notch');
+            const iframeEl = document.getElementById('expo-frame');
+            const iphoneBtn = document.getElementById('iphone-btn');
+            const androidBtn = document.getElementById('android-btn');
+            
+            // Update button states
+            iphoneBtn.classList.toggle('active', device === 'iphone');
+            androidBtn.classList.toggle('active', device === 'android');
+            
+            if (device === 'iphone') {
+                frame.style.width = '375px';
+                frame.style.height = '812px';
+                frame.style.borderRadius = '40px';
+                notch.style.display = 'block';
+                iframeEl.src = 'http://localhost:8081/node_modules/expo/AppEntry.bundle?platform=ios&dev=true&hot=false';
+            } else {
+                frame.style.width = '360px';
+                frame.style.height = '760px';
+                frame.style.borderRadius = '20px';
+                notch.style.display = 'none';
+                iframeEl.src = 'http://localhost:8081/node_modules/expo/AppEntry.bundle?platform=android&dev=true&hot=false';
+            }
+            
+            showLoading();
+        }
+        
+        function reloadApp() {
+            const iframeEl = document.getElementById('expo-frame');
+            showLoading();
+            iframeEl.src = iframeEl.src;
+        }
+        
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('expo-frame').style.display = 'none';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('expo-frame').style.display = 'block';
+        }
+        
+        // Auto-retry connection if failed
+        setInterval(() => {
+            const iframe = document.getElementById('expo-frame');
+            if (iframe.style.display === 'none' && document.getElementById('loading').style.display === 'block') {
+                // Check if server is responsive
+                fetch('http://localhost:8081')
+                    .then(response => {
+                        if (response.ok) {
+                            iframe.src = iframe.src;
+                        }
+                    })
+                    .catch(() => {
+                        document.getElementById('loading').innerHTML = 'Connecting to Expo server...<br><small>Make sure Expo is running on port 8081</small>';
+                    });
+            }
+        }, 3000);
+        
+        // Initial load
+        setTimeout(() => {
+            const iframe = document.getElementById('expo-frame');
+            iframe.style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+        }, 2000);
+    </script>
+</body>
+</html>
