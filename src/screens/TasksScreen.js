@@ -213,22 +213,24 @@ const TasksScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         {filteredTasks.length === 0 ? (
-          <Surface style={styles.emptyState}>
-            <Ionicons 
-              name="checkmark-done-outline" 
-              size={64} 
-              color={theme.colors.outline} 
-            />
-            <Text style={styles.emptyStateTitle}>
-              {filter === 'completed' ? 'No completed tasks' : 
-               filter === 'pending' ? 'No pending tasks' : 'No tasks yet'}
-            </Text>
-            <Text style={styles.emptyStateSubtitle}>
-              {filter === 'all' || filter === 'pending' 
-                ? 'Tap the + button to add your first task'
-                : 'Complete some tasks to see them here'
-              }
-            </Text>
+          <Surface style={{shadowColor: '#000', shadowOffset: {width: 0, height: 4}, shadowOpacity: 0.15, shadowRadius: 6.27, elevation: 10, backgroundColor: 'transparent', borderRadius: 16, marginTop: 60, marginBottom: 16, marginHorizontal: 20}}>
+            <View style={{backgroundColor: theme.colors.surface, borderRadius: 16, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', padding: 40}}>
+              <Ionicons 
+                name="checkmark-done-outline" 
+                size={64} 
+                color={theme.colors.outline} 
+              />
+              <Text style={styles.emptyStateTitle}>
+                {filter === 'completed' ? 'No completed tasks' : 
+                 filter === 'pending' ? 'No pending tasks' : 'No tasks yet'}
+              </Text>
+              <Text style={styles.emptyStateSubtitle}>
+                {filter === 'all' || filter === 'pending' 
+                  ? 'Tap the + button to add your first task'
+                  : 'Complete some tasks to see them here'
+                }
+              </Text>
+            </View>
           </Surface>
         ) : (
           filteredTasks.map((task) => (

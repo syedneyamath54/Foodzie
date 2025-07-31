@@ -52,15 +52,17 @@ const SettingsScreen = () => {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Surface style={[styles.profileCard, shadows.medium]}>
-        <View style={styles.profileContent}>
-          <Avatar.Icon 
-            size={64} 
-            icon="account" 
-            style={styles.avatar}
-          />
-          <Text style={styles.profileName}>TaskFlow User</Text>
-          <Text style={styles.profileEmail}>user@taskflow.app</Text>
+      <Surface style={[shadows.medium, {margin: 20}]}> 
+        <View style={[styles.profileCard, {overflow: 'hidden', borderRadius: 16, backgroundColor: theme.colors.surface}]}> 
+          <View style={styles.profileContent}>
+            <Avatar.Icon 
+              size={64} 
+              icon="account" 
+              style={styles.avatar}
+            />
+            <Text style={styles.profileName}>TaskFlow User</Text>
+            <Text style={styles.profileEmail}>user@taskflow.app</Text>
+          </View>
         </View>
       </Surface>
 
